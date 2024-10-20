@@ -1,0 +1,5 @@
+.env
+/env
+__pycache__/
+scrape/__pycache__
+utils/__pycache__
