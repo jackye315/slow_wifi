@@ -34,14 +34,7 @@ if __name__=="__main__":
     load_dotenv()
     api_key = os.environ['serpapi_api_key']
 
-    params = {
-    "engine": "google_shopping",
-    "q": "Macbook M3",
-    "api_key": "8ad0d5e65df6c84428c11a9f7d91d3e5448ec3ea54242bc52f278856461c219d"
-    }
-
-    search = GoogleSearch(params)
-    results = search.get_dict()
+    results = google_price(item_query="Macbook M3", api_key=api_key)
     shopping_results = results["shopping_results"]
     price_df = clean_price_output(results)
     print(max_min_avg_price(price_df))
