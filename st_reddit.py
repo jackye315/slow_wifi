@@ -12,16 +12,16 @@ google_api_key = os.environ['google_api_key']
 google_engine_id_cx = os.environ['google_engine_id_cx']
 
 def _reddit_st_post(post_data):
-    st.write(post_data['title'])
-    st.write(post_data['link'])
-    st.write(f"Author: {post_data['author']}, Upvotes: {post_data['score']}")
-    st.write(post_data['body_text'])
+    st.write(post_data['title'].replace("$", "\$"))
+    st.write(post_data['link'].replace("$", "\$"))
+    st.write((f"Author: {post_data['author']}, Upvotes: {post_data['score']}").replace("$", "\$"))
+    st.write(post_data['body_text'].replace("$", "\$"))
 
 def _reddit_st_conversation(comment_conversations):
     for conversation in comment_conversations:
         st.write("-------")
         for comment in conversation:
-            st.write(f"{comment.author}, {comment.score}: {comment.body}")
+            st.write((f"{comment.author}, {comment.score}: {comment.body}").replace("$", "\$"))
 
 def reddit_link():
     st.title('Scrape Reddit Link')
