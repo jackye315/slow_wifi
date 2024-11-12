@@ -28,7 +28,7 @@ if __name__=="__main__":
     from dotenv import load_dotenv
     load_dotenv()
     api_key = os.environ['google_api_key']
-    engine_id_cx = os.environ['google_engine_id_cx']
+    engine_id_cx = os.environ['google_reddit_engine_id_cx']
 
     search_query = "best pickleball paddle beginners"
     results = google_search(search_query=search_query, api_key=api_key, engine_id_cx=engine_id_cx)

@@ -9,7 +9,7 @@ reddit_client_id = os.environ['reddit_client_id']
 reddit_client_secret = os.environ['reddit_client_secret']
 reddit_user = os.environ['user']
 google_api_key = os.environ['google_api_key']
-google_engine_id_cx = os.environ['google_engine_id_cx']
+google_engine_id_cx = os.environ['google_reddit_engine_id_cx']
 
 def _reddit_st_post(post_data):
     st.write(post_data['title'].replace("$", "\$"))
