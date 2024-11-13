@@ -9,7 +9,7 @@ reddit_client_id = os.environ['reddit_client_id']
 reddit_client_secret = os.environ['reddit_client_secret']
 reddit_user = os.environ['user']
 google_api_key = os.environ['google_api_key']
-google_engine_id_cx = os.environ['google_reddit_engine_id_cx']
+reddit_engine_id_cx = os.environ['google_reddit_engine_id_cx']
 
 def _reddit_st_post(post_data):
     st.write(post_data['title'].replace("$", "\$"))
@@ -59,10 +59,11 @@ def reddit_search():
         if "date_unit" in st.session_state and st.session_state.date_unit != "Any Time":
             google_date_dict = {"Days":"d", "Weeks":"w", "Months":"m", "Years":"y"}
             date_filter = f"{google_date_dict[st.session_state.date_unit]}[{st.session_state.date_amount}]"
-            results = google_search(search_query=search_query, date_filter=date_filter, api_key=google_api_key, engine_id_cx=google_engine_id_cx)
+            results = google_search(search_query=search_query, date_filter=date_filter, api_key=google_api_key, engine_id_cx=reddit_engine_id_cx)
         else:
-            results = google_search(search_query=search_query, api_key=google_api_key, engine_id_cx=google_engine_id_cx)
-        reddit_links = clean_search_output(results)
+            results = google_search(search_query=search_query, api_key=google_api_key, engine_id_cx=reddit_engine_id_cx)
+        reddit_results = clean_search_output(results)
+        reddit_links = [reddit['link'] for reddit in reddit_results]
 
         reddit = reddit_setup(client_id=reddit_client_id,client_secret=reddit_client_secret,user=reddit_user)
         st.session_state.posts = []

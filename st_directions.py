@@ -5,7 +5,6 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 google_api_key = os.environ['google_api_key']
-google_engine_id_cx = os.environ['google_reddit_engine_id_cx']
 
 def directions():
     st.title('Get Directions to Anywhere')
