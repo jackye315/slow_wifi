@@ -36,7 +36,9 @@ def web_search():
         results = google_search(search_query=input_question, api_key=google_api_key, engine_id_cx=full_engine_id_cx, num_results=5)
         output_list = clean_search_output(results)
         output_list = get_results_content_langchain(output_list=output_list)
-        answer = model.generate_content([*[output['extracted_content'] for output in output_list],input_question]).text
+        cleaned_question = model.generate_content([input_question, "Turn the above topic into a appropriate question"]).text
+        st.write(cleaned_question.replace("$", "\$"))
+        answer = model.generate_content([*[f"Article {index+1}:\n{output['extracted_content']}" for index, output in enumerate(output_list)],cleaned_question]).text
         st.write(answer.replace("$", "\$"))
         st.write("Sources:")
         for output in output_list:
