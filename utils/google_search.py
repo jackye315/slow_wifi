@@ -18,6 +18,8 @@ def google_search(search_query:str, api_key:str, engine_id_cx:str, **kwargs):
         params["dateRestrict"] = kwargs["date_filter"]
     if "num_results" in kwargs:
         params["num"] = kwargs["num_results"]
+    if "country_code" in kwargs:
+        params["gl"] = kwargs["country_code"]
 
     uri="https://www.googleapis.com/customsearch/v1"
     response = requests.get(uri, params=params)
@@ -55,7 +57,8 @@ def get_results_content_langchain(output_list):
     return output_list
 
 if __name__=="__main__":
-    
+    import google.generativeai as genai
+
     import os
     from dotenv import load_dotenv
     load_dotenv()
@@ -64,14 +67,15 @@ if __name__=="__main__":
     reddit_engine_id_cx = os.environ['google_reddit_engine_id_cx']
     full_engine_id_cx = os.environ['google_all_engine_id_cx']
 
-    search_query = "nfl week 10 scores"
-    results = google_search(search_query=search_query, api_key=google_api_key, engine_id_cx=full_engine_id_cx, num_results=3)
+    search_query = "nfl week 11 results"
+    results = google_search(search_query=search_query, api_key=google_api_key, engine_id_cx=full_engine_id_cx, num_results=5)
     output_list = clean_search_output(results)
     output_list = get_results_content_langchain(output_list=output_list)
 
     model = get_gemini_model(api_key=gemini_api_key)
-    question = "Given this information, what is the best pickleball paddle for beginners on a budget?"
-    response = model.generate_content([*[f"Article {index+1}:\n{output['extracted_content']}" for index, output in enumerate(output_list)],question])
+    cleaned_question = model.generate_content([search_query, "Turn the above search query into a appropriate question. If the topic is time based, assume it is in the past unless specified"]).text
+    gemini_params = genai.types.GenerationConfig(temperature=0.0)
+    response = model.generate_content([*[f"Article {index+1}:\n{output['extracted_content']}" for index, output in enumerate(output_list)],cleaned_question], generation_config=gemini_params)
     response.text
 
     # import time
