@@ -30,12 +30,13 @@ def one_web():
         st.write(answer_question(text_from_html(response.text), question_box, model=model).replace("$", "\$"))
 
 def web_search():
+    st.title('Bootleg Perplexity')
+    
     if 'input_question' not in st.session_state:
         st.session_state.input_question = ""
     if 'search' not in st.session_state:
         st.session_state.search = False
     
-    st.title('Bootleg Perplexity')
     input_question = st.text_input("Search Google", value=st.session_state.input_question)
 
     def get_answer(question):
