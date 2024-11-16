@@ -3,3 +3,4 @@
 __pycache__/
 scrape/__pycache__
 utils/__pycache__
+oracle_db/wallet_certificates/
