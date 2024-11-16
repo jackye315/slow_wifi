@@ -10,57 +10,85 @@ oracle_cert_path = os.environ['oracle_cert_path']
 def create_connection(config_dir, user, password, dsn, wallet_dir, wallet_password):
      return oracledb.connect(config_dir=config_dir, user=user, password=password, dsn=dsn, wallet_location=wallet_dir, wallet_password=wallet_password)
 
-def create_cursor(connection):
-     return connection.cursor()
-
-def get_table(table_name:str, cursor):
+def get_table(table_name:str, connection):
      query = f"""
      SELECT *
      FROM {table_name}
      """
-     cursor.execute(query)
-     rows = cursor.fetchall()
-     columns = [col[0] for col in cursor.description]
+     with connection.cursor() as cursor:
+          cursor.execute(query)
+          rows = cursor.fetchall()
+          columns = [col[0] for col in cursor.description]
      return pd.DataFrame(rows, columns=columns)
 
-def get_conversation_messages(table_name:str, conversation_id:str, cursor):
+def get_conversation_messages(table_name:str, conversation_id:str, connection):
      query = f"""
      SELECT *
      FROM {table_name}
      WHERE CONVERSATION_ID = '{conversation_id}'
      """
-     cursor.execute(query)
-     rows = cursor.fetchall()
+     with connection.cursor() as cursor:
+          cursor.execute(query)
+          rows = cursor.fetchall()
+     return [row[4].read() for row in rows]
 
+def write_conversation_message(table_name:str, conversation_id:str, message_sender:str, message:str, connection):
+     query = f"""
+     INSERT INTO {table_name} (conversation_id, sender_name, message_text)
+     VALUES (:conversation_id, :sender_name, :message_text)
+     """
+     try:
+          with connection.cursor() as cursor:
+               cursor.execute(query, {
+                    'conversation_id':conversation_id, 
+                    'sender_name':message_sender, 
+                    'message_text':message
+                    })
+               connection.commit()
+          return "Success"
+     except Exception as error:
+          return f"{error}"
 
+def delete_conversation(table_name:str, conversation_id:str, connection):
+     query = f"""
+     DELETE FROM {table_name}
+     WHERE CONVERSATION_ID = '{conversation_id}'
+     """
+     try:
+          with connection.cursor() as cursor:
+               cursor.execute(query)
+               connection.commit()
+          return "Success"
+     except Exception as error:
+          return f"{error}"
 
 if __name__=="__main__":
-     connection=oracledb.connect(
+     connection = create_connection(
           config_dir=oracle_cert_path,
           user="ADMIN",
           password=oracle_admin_password,
           dsn=oracle_db_dsn,
-          wallet_location=oracle_cert_path,
-          wallet_password=oracle_admin_password)
+          wallet_dir=oracle_cert_path,
+          wallet_password=oracle_admin_password
+     )
 
-     # Create a cursor to execute a query
-     cursor = connection.cursor()
+     write_conversation_message(
+          table_name="MESSAGES",
+          conversation_id="A",
+          message_sender="USER",
+          message="Tell me a joke please!",
+          connection=connection
+     )
 
-     # Query to fetch messages table
-     query = """
-     SELECT *
-     FROM messages
-     where conversation_id = 'A'
-     """
+     delete_conversation(
+          table_name="MESSAGES",
+          conversation_id="A",
+          connection=connection
+     )
 
-     # Execute the query
-     cursor.execute(query)
+     curr_df = get_table(
+          table_name="MESSAGES",
+          connection=connection
+     )
 
-     # Fetch and display the rows
-     rows = cursor.fetchall()
-     for row in rows:
-          print(row)
-     print(rows)
-
-     cursor.close()
      connection.close()
