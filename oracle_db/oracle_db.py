@@ -18,8 +18,9 @@ def get_table(table_name:str, connection):
      with connection.cursor() as cursor:
           cursor.execute(query)
           rows = cursor.fetchall()
+          rows = [(row[0],row[1],row[2],row[3],row[4].read()) for row in rows] #convert oracle lob message to string
           columns = [col[0] for col in cursor.description]
-     return pd.DataFrame(rows, columns=columns)
+     return pd.DataFrame(rows, columns=columns).sort_values(['MESSAGE_TIME'])
 
 def get_conversation_messages(table_name:str, conversation_id:str, connection):
      query = f"""
@@ -71,6 +72,8 @@ if __name__=="__main__":
           wallet_dir=oracle_cert_path,
           wallet_password=oracle_admin_password
      )
+
+     messages_df = get_table(table_name="MESSAGES", connection=connection)
 
      write_conversation_message(
           table_name="MESSAGES",
